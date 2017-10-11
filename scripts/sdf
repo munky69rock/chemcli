@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import argparse
+
+from chemcli import sdf
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(help='Subcommand')
+
+    sub = subparsers.add_parser('sum', help='summarize sdf')
+    sub.add_argument('filename', action='store', type=str)
+    sub.set_defaults(func=sdfsum)
+
+    sub = subparsers.add_parser('head', help='head sdf')
+    sub.add_argument('filename', action='store', type=str)
+    sub.add_argument('--limit', '-l', type=int, default=10)
+    sub.set_defaults(func=head)
+
+    sub = subparsers.add_parser('grep', help='grep sdf')
+    sub.add_argument('pattern', action='store', type=str)
+    sub.add_argument('filename', action='store', type=str)
+    sub.add_argument('--invert-match', '-v', action='store_true')
+    sub.set_defaults(func=grep)
+
+    args = parser.parse_args()
+    if not hasattr(args, 'func'):
+        parser.error('specify sub-command')
+    return args
+
+
+def sdfsum(args):
+    sdf.sum(args.filename)
+
+
+def head(args):
+    sdf.head(args.filename, args.limit)
+
+
+def grep(args):
+    sdf.grep(args.filename, args.pattern, args.invert_match)
+
+
+def main():
+    args = parse_args()
+    args.func(args)
+
+
+if __name__ == '__main__':
+    main()
